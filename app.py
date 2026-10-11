@@ -5,14 +5,14 @@ import time
 
 # Configuração da página do aplicativo
 st.set_page_config(
-    page_title="DI CHECK - Auditoria de Vídeos",
+    page_title="DI CHECK - Auditoria por Checklist",
     page_icon="🛡️",
     layout="centered"
 )
 
 st.title("🛡️ DI CHECK - Auditoria Inteligente")
-st.subheader("Análise de Vídeos para TikTok Shop e Shopee")
-st.write("O sistema analisa o vídeo enviado para caçar falhas visuais, logotipos incorretos e riscos de rejeição.")
+st.subheader("Análise de Conformidade para TikTok Shop e Shopee")
+st.write("O sistema realiza uma checklist visual detalhada para garantir segurança total antes da publicação.")
 
 st.divider()
 
@@ -38,8 +38,8 @@ else:
         st.divider()
         
         # Botão para iniciar a auditoria
-        if st.button("🚀 Executar Auditoria de Vídeo", type="primary"):
-            with st.spinner("A IA está a processar e a inspecionar o vídeo detalhadamente..."):
+        if st.button("🚀 Executar Auditoria com Checklist", type="primary"):
+            with st.spinner("A IA está a inspecionar o vídeo e a montar a checklist de conformidade..."):
                 try:
                     # Guarda o vídeo temporariamente
                     with open("temp_video.mp4", "wb") as f:
@@ -53,36 +53,56 @@ else:
                         time.sleep(2)
                         video_file = client.files.get(name=video_file.name)
 
-                    # Prompt analítico profundo e incisivo para detetar anomalias visuais
+                    # Prompt estruturado para gerar a checklist com ✅ / ❌ e a lógica de veredicto
                     prompt_auditoria = (
-                        "Você é um auditor sênior de conformidade, qualidade e segurança de contas para o TikTok Shop e Shopee. "
+                        "Você é um auditor sênior de conformidade e segurança de contas para o TikTok Shop e Shopee. "
                         "Analise este vídeo quadro a quadro com máximo rigor. "
-                        "Procure ativamente por qualquer anomalia ou defeito visual: "
-                        "1. Verifique se existem logotipos, marcas ou estampas impressas ou visíveis na parte de trás de produtos (como bolsas, mochilas ou roupas) onde no produto original ou correto elas NÃO deveriam existir. "
-                        "2. Identifique qualquer inconsistência estrutural, defeito de fabricação aparente ou divergência com padrões reais de e-commerce. "
-                        "3. Avalie se o vídeo apresenta risco de rejeição pelos robôs das plataformas ou banimento de conta. "
-                        "FORMATO OBRIGATÓRIO DE RESPOSTA: "
-                        "- Comece obrigatoriamente com o veredicto: [APROVADO] ou [REPROVADO]. "
-                        "- Em seguida, elabore um relatório detalhado apontando exatamente quais falhas, logotipos indevidos ou riscos foram encontrados na gravação."
+                        "Você deve gerar obrigatoriamente uma **Checklist de Inspeção Detalhada**, avaliando os seguintes pontos com os símbolos corretos: "
+                        "- Use **✅** se o item estiver perfeito e em total conformidade. "
+                        "- Use **❌** se encontrar qualquer anomalia, erro, inversão, logotipos indevidos na parte traseira de produtos (ex: bolsas/peças) ou risco. "
+                        "\n\n"
+                        "Itens obrigatórios da Checklist a avaliar:\n"
+                        "1. **Logotipos e Estampas (Frente e Verso):** Verificação de marcas indevidas ou ausência de logotipos onde não deveriam existir.\n"
+                        "2. **Padrão de Produto Original:** Conformidade estrutural e visual com o mercado oficial.\n"
+                        "3. **Riscos de Moderação (Robôs da Plataforma):** Inspecionando elementos que possam gerar penalização, queda de score ou banimento.\n"
+                        "\n"
+                        "REGRAS RÍGIDAS DE AVALIAÇÃO:\n"
+                        "- Se houver **pelo menos um** item marcado com ❌, o veredicto final DEVE ser obrigatoriamente **[REPROVADO]** e você deve explicar o motivo exato logo abaixo.\n"
+                        "- O vídeo só poderá receber o veredicto **[APROVADO]** se e somente se **todos** os itens da checklist estiverem marcados com ✅."
                     )
 
-                    # Chamada limpa passando o objeto do ficheiro de vídeo e o texto diretamente
-                    response = client.models.generate_content(
-                        model='gemini-3.8-flash',
-                        contents=[video_file, prompt_auditoria]
-                    )
+                    # Mecanismo de tentativas automáticas caso o servidor esteja com alta procura (503)
+                    max_tentativas = 3
+                    sucesso = False
+                    response = None
 
-                    # Exibe o relatório gerado pela IA
-                    st.markdown("### 📋 Relatório de Auditoria")
-                    
-                    texto_resposta = response.text
-                    
-                    if "[REPROVADO]" in texto_resposta.upper() or "RISCO" in texto_resposta.upper() or "FALHA" in texto_resposta.upper():
-                        st.error("🚨 **VEREDICTO: REPROVADO / RISCO DETETADO**")
-                    else:
-                        st.success("✅ **VEREDICTO: APROVADO**")
+                    for tentativa in range(max_tentativas):
+                        try:
+                            response = client.models.generate_content(
+                                model='gemini-3.8-flash',
+                                contents=[video_file, prompt_auditoria]
+                            )
+                            sucesso = True
+                            break
+                        except Exception as err:
+                            if "503" in str(err) and tentativa < max_tentativas - 1:
+                                time.sleep(5)
+                            else:
+                                raise err
+
+                    if sucesso and response:
+                        # Exibe o relatório gerado pela IA
+                        st.markdown("### 📋 Relatório de Auditoria (Checklist)")
                         
-                    st.write(texto_resposta)
+                        texto_resposta = response.text
+                        
+                        # Verifica o veredicto baseado na resposta da IA
+                        if "[REPROVADO]" in texto_resposta.upper() or "❌" in texto_resposta:
+                            st.error("🚨 **VEREDICTO FINAL: REPROVADO (CONTÉM FALHAS / NÃO PUBLIQUE)**")
+                        else:
+                            st.success("✅ **VEREDICTO FINAL: APROVADO PARA PUBLICAÇÃO**")
+                            
+                        st.write(texto_resposta)
 
                     # Limpeza do ficheiro temporário local
                     os.remove("temp_video.mp4")
