@@ -16,7 +16,6 @@ st.write("O sistema utiliza Inteligência Artificial para inspecionar o vídeo e
 st.divider()
 
 # Configuração da Chave da API do Gemini de forma segura
-# (O Streamlit busca a chave automaticamente nos "Secrets" do painel)
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if not api_key:
@@ -59,9 +58,9 @@ else:
                         "Forneça um relatório claro indicando se o vídeo está APROVADO ou se contém RISCO DE PENALIZAÇÃO, detalhando os motivos."
                     )
 
-                    # Chamada ao modelo multimodal do Gemini
+                    # Chamada ao modelo atualizado do Gemini
                     response = client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-3.8-flash',
                         contents=[video_file, prompt_auditoria]
                     )
 
