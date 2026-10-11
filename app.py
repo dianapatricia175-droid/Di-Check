@@ -1,58 +1,78 @@
 import streamlit as st
+from google import genai
+import os
 
 # Configuração da página do aplicativo
 st.set_page_config(
-    page_title="DI CHECK - Análise Inteligente de Vídeos",
+    page_title="DI CHECK - Auditoria com IA",
     page_icon="🤖",
     layout="centered"
 )
 
-# Título e Descrição Principal
-st.title("🤖 DI CHECK")
-st.subheader("Análise Inteligente de Vídeos para Conformidade (TikTok & Shopee)")
-st.write("Faça o upload do seu ficheiro de vídeo para que o sistema verifique inconsistências, riscos e produtos proibidos.")
+st.title("🤖 DI CHECK - Auditoria Inteligente")
+st.subheader("Análise Avançada de Vídeos para TikTok Shop e Shopee")
+st.write("O sistema utiliza Inteligência Artificial para inspecionar o vídeo e detetar inconsistências visuais, logotipos incorretos e produtos restritos.")
 
 st.divider()
 
-# 1. Área de Upload de Vídeo
-st.markdown("### 1. Enviar Vídeo para Análise")
-video_carregado = st.file_uploader(
-    "Selecione o ficheiro de vídeo (.mp4, .mov, .avi)", 
-    type=["mp4", "mov", "avi", "mkv"]
-)
+# Configuração da Chave da API do Gemini de forma segura
+# (O Streamlit busca a chave automaticamente nos "Secrets" do painel)
+api_key = st.secrets.get("GEMINI_API_KEY")
 
-if video_carregado is not None:
-    # Exibe o vídeo para pré-visualização
-    st.success("Ficheiro carregado com sucesso!")
-    st.video(video_carregado)
-    
-    st.divider()
-    
-    # 2. Processo de Análise Inteligente
-    st.markdown("### 2. Relatório de Verificação de Diretrizes")
-    
-    with st.spinner("A analisar o conteúdo e as diretrizes de segurança..."):
-        # Simulando a verificação avançada de conformidade e produtos restritos
-        # (Aqui o código valida os parâmetros críticos de moderação)
-        pass
-
-    # Exibição dos resultados da auditoria de segurança
-    st.markdown("#### Resultados da Auditoria:")
-    
-    verificacao_produtos = st.checkbox("🔍 Verificação de Produtos Proibidos / Restritos", value=True)
-    verificacao_inconsistencias = st.checkbox("⚠️ Verificação de Inconsistências (Áudio vs Produto)", value=True)
-    verificacao_qualidade = st.checkbox("📱 Conformidade com Padrões de Vídeo das Plataformas", value=True)
-
-    st.divider()
-
-    # 3. Parecer Final do Sistema
-    st.markdown("### 3. Veredicto Final")
-    
-    if verificacao_produtos and verificacao_inconsistencias and verificacao_qualidade:
-        st.balloons()
-        st.success("✅ **Status: APROVADO PARA PUBLICAÇÃO**\n\nO vídeo passou nos filtros de segurança contra produtos proibidos e inconsistências. Pode postar com tranquilidade para proteger a saúde da sua conta!")
-    else:
-        st.error("❌ **Status: RISCO DE PENALIZAÇÃO DETETADO**\n\nForam encontrados pontos de atenção que violam as diretrizes da plataforma. Revise o conteúdo antes de fazer o upload definitivo.")
-
+if not api_key:
+    st.error("🔑 **Chave da API do Gemini não encontrada!** Por favor, adicione a chave nas configurações (Secrets) do seu projeto no Streamlit Cloud.")
 else:
-    st.info("ℹ️ Nenhum vídeo carregado no momento. Por favor, faça o upload de um ficheiro de vídeo acima para iniciar a varredura inteligente.")
+    # Inicializa o cliente oficial do Google GenAI
+    client = genai.Client(api_key=api_key)
+
+    # 1. Área de Upload de Vídeo
+    st.markdown("### 1. Carregar Vídeo para Análise Automática")
+    video_carregado = st.file_uploader(
+        "Selecione o ficheiro de vídeo (.mp4, .mov, .avi)", 
+        type=["mp4", "mov", "avi", "mkv"]
+    )
+
+    if video_carregado is not None:
+        st.success("Ficheiro carregado com sucesso!")
+        st.video(video_carregado)
+        
+        st.divider()
+        
+        # Botão para iniciar a análise por IA
+        if st.button("🚀 Iniciar Auditoria de IA", type="primary"):
+            with st.spinner("A IA está a analisar o vídeo quadro a quadro em busca de inconsistências e riscos..."):
+                try:
+                    # Salva temporariamente o vídeo carregado para envio à API
+                    with open("temp_video.mp4", "wb") as f:
+                        f.write(video_carregado.getbuffer())
+
+                    # Envia o vídeo para o Gemini processar o ficheiro multimédia
+                    video_file = client.files.upload(file="temp_video.mp4")
+                    
+                    # Prompt focado nas regras exigidas para o TikTok Shop e Shopee
+                    prompt_auditoria = (
+                        "Você é um auditor especialista em conformidade para o TikTok Shop e Shopee. "
+                        "Analise este vídeo detalhadamente. Verifique: "
+                        "1. Se existem inconsistências visuais graves, como logotipos de marcas aparecendo incorretamente onde não deveriam (ex: marca no verso de uma bolsa onde não existe no original). "
+                        "2. Se há presença de produtos proibidos, restritos ou falsificados. "
+                        "3. Se o conteúdo pode gerar penalizações ou banimento de conta. "
+                        "Forneça um relatório claro indicando se o vídeo está APROVADO ou se contém RISCO DE PENALIZAÇÃO, detalhando os motivos."
+                    )
+
+                    # Chamada ao modelo multimodal do Gemini
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=[video_file, prompt_auditoria]
+                    )
+
+                    # Exibe o resultado da auditoria da IA
+                    st.markdown("### 📋 Relatório de Auditoria da IA")
+                    st.write(response.text)
+
+                    # Limpeza do ficheiro temporário local
+                    os.remove("temp_video.mp4")
+
+                except Exception as e:
+                    st.error(f"Ocorreu um erro durante o processamento com a IA: {e}")
+    else:
+        st.info("ℹ️ Faça o upload de um vídeo acima para começar a auditoria automática.")
