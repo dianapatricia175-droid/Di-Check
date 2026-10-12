@@ -1,4 +1,3 @@
-
 import streamlit as st
 from google import genai
 import os
@@ -78,12 +77,12 @@ else:
                     "- O vídeo só poderá receber o veredicto **[APROVADO]** se e somente se todos os itens essenciais estiverem marcados com ✅."
                 )
 
-                # Chamada direta e estável utilizando o modelo gemini-3.8-flash com retentativas inteligentes
+                # Chamada com retentativas inteligentes (até 5 tentativas e 8 segundos de pausa para contornar o erro 503)
                 sucesso = False
                 response = None
                 ultimo_erro = None
 
-                for tentativa in range(3):
+                for tentativa in range(5):
                     try:
                         response = client.models.generate_content(
                             model='gemini-3.8-flash',
@@ -94,7 +93,7 @@ else:
                             break
                     except Exception as err:
                         ultimo_erro = err
-                        time.sleep(5)
+                        time.sleep(8)
 
                 if sucesso and response and response.text:
                     status_box.update(label="Auditoria concluída com sucesso!", state="complete", expanded=False)
@@ -111,7 +110,7 @@ else:
                     st.write(texto_resposta)
                 else:
                     status_box.update(label="Falha na resposta da IA", state="error")
-                    st.error(f"Os servidores estão com alta procura no momento. Detalhe técnico: {ultimo_erro}")
+                    st.error(f"Os servidores estão com alta procura no momento (Erro 503). Detalhe técnico: {ultimo_erro}")
 
                 if os.path.exists("temp_video.mp4"):
                     os.remove("temp_video.mp4")
