@@ -58,7 +58,7 @@ else:
 
                 status_box.update(label="A executar a auditoria de precisão com IA...", state="running")
 
-                # Prompt refinado para eliminar falsos positivos de marcas e validar variações de cores/modelos
+                # Prompt unificado, rigoroso e alinhado com todas as diretrizes ajustadas
                 prompt_auditoria = (
                     "Você é um auditor sênior de conformidade, qualidade visual e segurança de contas para o TikTok Shop e Shopee. "
                     "Analise este vídeo quadro a quadro com rigor absoluto e sem ambiguidades. "
@@ -77,26 +77,23 @@ else:
                     "- O vídeo só poderá receber o veredicto **[APROVADO]** se e somente se todos os itens essenciais estiverem marcados com ✅."
                 )
 
-                modelos_para_tentar = ['gemini-3.8-flash', 'gemini-2.5-flash']
+                # Chamada direta e estável utilizando o modelo gemini-3.8-flash com retentativas inteligentes
                 sucesso = False
                 response = None
                 ultimo_erro = None
 
-                for modelo in modelos_para_tentar:
-                    for tentativa in range(2):
-                        try:
-                            response = client.models.generate_content(
-                                model=modelo,
-                                contents=[video_file, prompt_auditoria]
-                            )
-                            if response and hasattr(response, 'text') and response.text:
-                                sucesso = True
-                                break
-                        except Exception as err:
-                            ultimo_erro = err
-                            time.sleep(3)
-                    if sucesso:
-                        break
+                for tentativa in range(3):
+                    try:
+                        response = client.models.generate_content(
+                            model='gemini-3.8-flash',
+                            contents=[video_file, prompt_auditoria]
+                        )
+                        if response and hasattr(response, 'text') and response.text:
+                            sucesso = True
+                            break
+                    except Exception as err:
+                        ultimo_erro = err
+                        time.sleep(5)
 
                 if sucesso and response and response.text:
                     status_box.update(label="Auditoria concluída com sucesso!", state="complete", expanded=False)
@@ -113,7 +110,7 @@ else:
                     st.write(texto_resposta)
                 else:
                     status_box.update(label="Falha na resposta da IA", state="error")
-                    st.error(f"Os servidores não retornaram resposta válida. Erro técnico: {ultimo_erro}")
+                    st.error(f"Os servidores estão com alta procura no momento. Detalhe técnico: {ultimo_erro}")
 
                 if os.path.exists("temp_video.mp4"):
                     os.remove("temp_video.mp4")
