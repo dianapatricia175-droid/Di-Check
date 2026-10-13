@@ -3,14 +3,14 @@ from google import genai
 import os
 import time
 
-# Configuração da página do aplicativo com layout moderno
+# Configuração da página do aplicativo com layout moderno (Wide)
 st.set_page_config(
-    page_title="DI CHECK - Auditoria Inteligente",
+    page_title="DI CHECK - Auditoria Multi-Ângulo (Foto vs. Vídeo)",
     page_icon="🛡️",
-    layout="wide" # Alterado para wide para dar um aspeto de painel corporativo (Dashboard)
+    layout="wide"
 )
 
-# Estilização CSS personalizada para dar aspeto de Painel de Auditoria de Alta Tecnologia
+# Estilização CSS personalizada para o painel corporativo
 st.markdown("""
     <style>
     .main-header {
@@ -24,13 +24,6 @@ st.markdown("""
         color: #4B5563;
         margin-bottom: 20px;
     }
-    .metric-card {
-        background-color: #F3F4F6;
-        padding: 15px;
-        border-radius: 8px;
-        border-left: 5px solid #3B82F6;
-        margin-bottom: 15px;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -38,19 +31,18 @@ st.markdown("""
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/security-checked.png", width=70)
     st.markdown("### 🛡️ DI CHECK System")
-    st.info("Painel autónomo de validação e conformidade visual integrado com a inteligência artificial Gemini para o TikTok Shop e Shopee.")
+    st.info("Painel de auditoria avançada com suporte a múltiplos ângulos de referência (Foto 1 obrigatória + até 3 opcionais).")
     st.markdown("---")
-    st.markdown("**Critérios Ativos de Inspeção:**")
-    st.markdown("✔️ Autenticidade de Marcas/Logotipos")
-    st.markdown("✔️ Controlo de Resolução e Borrões")
-    st.markdown("✔️ Validação de Textos Invertidos/Espelho")
-    st.markdown("✔️ Exceção Segura para Variações de Cores")
+    st.markdown("**Critérios de Alta Precisão:**")
+    st.markdown("✔️ Controlo de Inconsistências (Alucinações de IA)")
+    st.markdown("✔️ Comparação Multi-Ângulo (Frente, Verso, Lados)")
+    st.markdown("✔️ Controlo de Resolução, Borrões e Espelho")
     st.markdown("---")
-    st.caption("Versão 3.8.2 - Enterprise Grade")
+    st.caption("Versão 4.0.0 - Multi-Angle AI Audit")
 
 # Cabeçalho Principal
-st.markdown('<p class="main-header">🛡️ DI CHECK - Auditoria de Vídeo Inteligente</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">Plataforma de alta precisão para validação pré-publicação no TikTok Shop e Shopee.</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-header">🛡️ DI CHECK - Auditoria Multi-Ângulo</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-header">Insira a foto principal de referência e ângulos opcionais para cruzamento total com o vídeo gerado.</p>', unsafe_allow_html=True)
 
 st.divider()
 
@@ -62,79 +54,102 @@ if not api_key:
 else:
     client = genai.Client(api_key=api_key)
 
-    # Layout em colunas para a área de upload e pré-visualização
-    col1, col2 = st.columns([1, 1], gap="large")
+    # Layout em colunas: Esquerda (Imagens de Referência) | Direita (Vídeo e Botão)
+    col_esq, col_dir = st.columns([1, 1], gap="large")
 
-    with col1:
-        st.markdown("### 📥 1. Envio de Ficheiro")
+    with col_esq:
+        st.markdown("### 🖼️ 1. Imagens de Referência da Loja")
+        st.caption("Adicione até 4 imagens para validação estrutural completa.")
+        
+        img1 = st.file_uploader("📸 Imagem 1: Frente / Principal (Obrigatória)", type=["jpg", "jpeg", "png"], key="img1")
+        img2 = st.file_uploader("📐 Imagem 2: Verso ou Ângulo Alternativo (Opcional)", type=["jpg", "jpeg", "png"], key="img2")
+        img3 = st.file_uploader("🔍 Imagem 3: Detalhes / Acabamento (Opcional)", type=["jpg", "jpeg", "png"], key="img3")
+        img4 = st.file_uploader("🔄 Imagem 4: Outro Ângulo / Etiqueta (Opcional)", type=["jpg", "jpeg", "png"], key="img4")
+
+    with col_dir:
+        st.markdown("### 🎬 2. Vídeo Gerado para Auditoria")
         video_carregado = st.file_uploader(
             "Selecione o ficheiro de vídeo (.mp4, .mov, .avi)", 
             type=["mp4", "mov", "avi", "mkv"]
         )
-        
-        if video_carregado is not None:
-            st.success("Ficheiro validado e pronto para análise.")
-
-    with col2:
-        st.markdown("### 🎬 2. Pré-visualização do Conteúdo")
         if video_carregado is not None:
             st.video(video_carregado)
-        else:
-            st.markdown("""
-                <div class="metric-card">
-                    <b>Aguardando ficheiro...</b><br>
-                    Faça o upload de um vídeo ao lado para ativar o motor de inspeção visual detalhada.
-                </div>
-            """, unsafe_allow_html=True)
 
-    if video_carregado is not None:
+    # Validação para habilitar o botão: Imagem 1 e Vídeo são estritamente obrigatórios
+    if img1 is not None and video_carregado is not None:
         st.divider()
         
-        # Secção centralizada para o botão de execução
         col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
         with col_btn2:
-            executar_auditoria = st.button("🚀 Executar Auditoria de Precisão", type="primary", use_container_width=True)
+            executar_auditoria = st.button("🚀 Executar Auditoria Multi-Ângulo", type="primary", use_container_width=True)
 
         if executar_auditoria:
-            status_box = st.status("🔍 A iniciar motor de auditoria...", expanded=True)
+            status_box = st.status("🔍 A preparar ficheiros e imagens para análise...", expanded=True)
             
             try:
-                status_box.update(label="A preparar o ficheiro temporário...", state="running")
+                # Lista para acumular todos os recursos que serão enviados ao Gemini
+                contents_to_send = []
+                temp_files_to_clean = []
+
+                # Processar Imagem 1 (Obrigatória)
+                status_box.update(label="A processar Imagem 1 (Principal)...", state="running")
+                with open("temp_img1.jpg", "wb") as f:
+                    f.write(img1.getbuffer())
+                f_obj1 = client.files.upload(file="temp_img1.jpg")
+                contents_to_send.append(f_obj1)
+                temp_files_to_clean.append("temp_img1.jpg")
+
+                # Processar Imagens Opcionais (2, 3 e 4) dinamicamente se existirem
+                imagens_opcionais = [img2, img3, img4]
+                for idx, img_opc in enumerate(imagens_opcionais, start=2):
+                    if img_opc is not None:
+                        status_box.update(label=f"A processar Imagem {idx} (Ângulo alternativo)...", state="running")
+                        fname = f"temp_img{idx}.jpg"
+                        with open(fname, "wb") as f:
+                            f.write(img_opc.getbuffer())
+                        f_obj = client.files.upload(file=fname)
+                        contents_to_send.append(f_obj)
+                        temp_files_to_clean.append(fname)
+
+                # Processar Vídeo
+                status_box.update(label="A guardar e enviar o vídeo...", state="running")
                 with open("temp_video.mp4", "wb") as f:
                     f.write(video_carregado.getbuffer())
-
-                status_box.update(label="A transmitir o vídeo para o ambiente seguro da Google...", state="running")
                 video_file = client.files.upload(file="temp_video.mp4")
+                temp_files_to_clean.append("temp_video.mp4")
                 
-                status_box.update(label="A aguardar processamento e renderização dos fotogramas...", state="running")
+                status_box.update(label="A aguardar processamento dos multimédia na nuvem da Google...", state="running")
                 while video_file.state.name == "PROCESSING":
                     time.sleep(3)
                     video_file = client.files.get(name=video_file.name)
                     if video_file.state.name == "FAILED":
-                        raise Exception("O processamento do vídeo falhou nos servidores da Google.")
+                        raise Exception("O processamento do vídeo falhou nos servidores.")
 
-                status_box.update(label="A executar varredura quântica de conformidade com IA...", state="running")
+                # Adicionar o vídeo à lista de conteúdos enviados
+                contents_to_send.append(video_file)
 
-                # Prompt definitivo ultra-rigoroso cobrindo todas as regras estabelecidas
+                status_box.update(label="A executar cruzamento rigoroso multi-ângulo...", state="running")
+
+                # Prompt especializado considerando as múltiplas imagens e o vídeo
                 prompt_auditoria = (
-                    "Você é um auditor sênior de conformidade, qualidade visual e segurança de contas para o TikTok Shop e Shopee. "
-                    "Analise este vídeo quadro a quadro com rigor absoluto, implacável e sem margem para erros. "
-                    "Você deve gerar obrigatoriamente uma **Checklist de Inspeção Detalhada**, avaliando os seguintes pontos com os símbolos corretos: "
-                    "- Use **✅** apenas se o item estiver perfeito, em alta definição e total conformidade. "
-                    "- Use **❌** se encontrar qualquer anomalia real, logotipos falsificados de terceiros, **baixa resolução (ex: abaixo de 720p), letras miúdas borradas, distorcidas, ilegíveis OU SE HOUVER PALAVRAS AO CONTRÁRIO (invertidas, espelhadas ou ilegíveis)** nas embalagens e rótulos. "
+                    "Você é um auditor sênior de conformidade, qualidade visual e prevenção de inconsistências para o TikTok Shop e Shopee. "
+                    "Analise com rigor absoluto e implacável o conjunto de **Imagens de Referência da Loja fornecidas (de 1 até 4 ângulos)** em comparação estrita com o **Vídeo enviado**. "
+                    "O seu foco principal é detetar **inconsistências de produto e alucinações de inteligência artificial** (como botões extras, laços, fechos alterados, proporções divergentes ou elementos estruturais que aparecem no vídeo mas NÃO correspondem às referências visuais oficiais). "
                     "\n\n"
-                    "Itens obrigatórios da Checklist a avaliar:\n"
-                    "1. **Autenticidade de Logotipos e Marcas:** Verifique se existem marcas concorrentes ou logotipos de terceiros não autorizados. Nota importante: Exiba ✅ se o logotipo apresentado pertencer legitimamente ao produto anunciado (marcas próprias ou oficiais do lojista), sem falsos positivos.\n"
-                    "2. **Resolução, Nitidez, Orientação e Legibilidade de Textos:** O vídeo tem resolução adequada? Os textos descritivos e especificações impressas estão nítidos? **Atenção redobrada:** Se as palavras estiverem invertidas/ao contrário (efeito espelho incorreto), borradas, cortadas ou com baixa resolução que dificulte a leitura, **este item deve receber obrigatoriamente ❌**.\n"
-                    "3. **Variações de Cores, Modelos e Linhas de Produtos:** Avalie se há múltiplas versões, cores ou potes exibidos no vídeo. **REGRA DE OURO:** A apresentação de variações de cores, sabores ou modelos lado a lado é uma prática comercial legítima e ESPERADA no e-commerce. Nunca considere variações de cores/modelos como erro ou inconsistência estrutural (atribua ✅).\n"
-                    "4. **Riscos de Moderação (Robôs da Plataforma):** Inspecionando elementos que possam gerar penalização real pelas regras do marketplace.\n"
+                    "Gere obrigatoriamente uma **Checklist de Inspeção Detalhada** avaliando:\n"
+                    "1. **Consistência Estrutural (Fotos vs. Vídeo):** O produto exibido no vídeo mantém fidelidade absoluta às imagens de referência fornecidas (considerando frente, verso e detalhes)? Atribua ❌ se houver discrepâncias físicas geradas por IA.\n"
+                    "2. **Autenticidade de Marcas e Rótulos:** Verifique se os logótipos e textos estão corretos e legítimos.\n"
+                    "3. **Qualidade Técnica do Vídeo:** O vídeo tem boa resolução? Os textos estão nítidos e legíveis? Atribua ❌ se houver borrões graves ou **palavras invertidas/espelhadas**.\n"
+                    "4. **Variações de Cores:** Variações de cores legítimas do mesmo produto são permitidas desde que a geometria e o modelo sejam idênticos às fotos de referência.\n"
                     "\n"
-                    "REGRAS RÍGIDAS DE AVALIAÇÃO:\n"
-                    "- Se houver **pelo menos um** erro real marcado com ❌ (incluindo baixa resolução, texto ilegível ou palavras ao contrário/invertidas), o veredicto final DEVE ser obrigatoriamente **[REPROVADO]** com a explicação detalhada do motivo.\n"
-                    "- O vídeo só poderá receber o veredicto **[APROVADO]** se e somente se todos os itens essenciais estiverem marcados com ✅."
+                    "REGRAS RÍGIDAS:\n"
+                    "- Se houver **qualquer inconsistência de produto** ou erro técnico grave, o veredicto final DEVE ser obrigatoriamente **[REPROVADO]**.\n"
+                    "- O veredicto **[APROVADO]** só será emitido se todos os critérios estiverem rigorosamente alinhados com as imagens de referência."
                 )
 
-                # Chamada com retentativas inteligentes (até 5 tentativas e 8 segundos de pausa para contornar o erro 503)
+                contents_to_send.append(prompt_auditoria)
+
+                # Chamada com retentativas inteligentes para o erro 503
                 sucesso = False
                 response = None
                 ultimo_erro = None
@@ -143,7 +158,7 @@ else:
                     try:
                         response = client.models.generate_content(
                             model='gemini-3.8-flash',
-                            contents=[video_file, prompt_auditoria]
+                            contents=contents_to_send
                         )
                         if response and hasattr(response, 'text') and response.text:
                             sucesso = True
@@ -155,15 +170,14 @@ else:
                 if sucesso and response and response.text:
                     status_box.update(label="Auditoria concluída com sucesso!", state="complete", expanded=False)
                     
-                    st.markdown("### 📋 Relatório Executivo de Auditoria")
+                    st.markdown("### 📋 Relatório Executivo Multi-Ângulo")
                     
                     texto_resposta = response.text
                     
-                    # Caixa de destaque visual para o resultado final
                     if "[REPROVADO]" in texto_resposta.upper() or "❌" in texto_resposta:
-                        st.error("🚨 **VEREDICTO CORPORATIVO: REPROVADO (RISCO DE PENALIZAÇÃO / NÃO PUBLIQUE)**")
+                        st.error("🚨 **VEREDICTO CORPORATIVO: REPROVADO (INCONSISTÊNCIA DETETADA / NÃO PUBLIQUE)**")
                     else:
-                        st.success("✅ **VEREDICTO CORPORATIVO: APROVADO PARA PUBLICAÇÃO IMEDIATA**")
+                        st.success("✅ **VEREDICTO CORPORATIVO: APROVADO (FIEL ÀS FOTOS DE REFERÊNCIA)**")
                         
                     st.markdown("---")
                     st.write(texto_resposta)
@@ -171,11 +185,16 @@ else:
                     status_box.update(label="Falha na resposta da IA", state="error")
                     st.error(f"Os servidores estão com alta procura no momento (Erro 503). Detalhe técnico: {ultimo_erro}")
 
-                if os.path.exists("temp_video.mp4"):
-                    os.remove("temp_video.mp4")
+                # Limpar ficheiros temporários locais
+                for f_temp in temp_files_to_clean:
+                    if os.path.exists(f_temp):
+                        os.remove(f_temp)
 
             except Exception as e:
                 status_box.update(label="Erro crítico no processo", state="error")
                 st.error(f"Ocorreu um erro durante o processamento: {e}")
-                if os.path.exists("temp_video.mp4"):
-                    os.remove("temp_video.mp4")
+                for f_temp in temp_files_to_clean:
+                    if os.path.exists(f_temp):
+                        os.remove(f_temp)
+    else:
+        st.info("ℹ️ Para iniciar a auditoria, carregue obrigatoriamente a **Imagem 1 (Principal)** e o **Vídeo** nos campos indicados.")
