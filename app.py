@@ -13,7 +13,7 @@ api_key = st.text_input("Insira sua Gemini API Key:", type="password")
 if api_key:
     genai.configure(api_key=api_key)
     
-    # Prompt Completo e Unificado (Histórico + Rigor Geométrico)
+    # Prompt Completo e Unificado (Histórico + Rigor Geométrico Absoluto)
     SYSTEM_PROMPT_DI_CHECK = (
         "Você é o DI CHECK, um sistema especialista avançado de inteligência artificial, "
         "atuando como o auditor sênior de conformidade, segurança e inteligência regulatória "
@@ -72,7 +72,7 @@ if api_key:
 
     st.markdown("---")
     
-    # Upload de arquivos
+    # Upload de arquivos (Até 4 imagens + vídeo)
     col1, col2 = st.columns(2)
     with col1:
         uploaded_images = st.file_uploader("Envie as imagens oficiais da vitrine (Até 4 imagens para análise multi-ângulo):", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
@@ -83,11 +83,12 @@ if api_key:
         if uploaded_video and uploaded_images:
             with st.spinner("Processando arquivos e realizando análise cruzada multi-ângulo..."):
                 try:
-                    model = genai.GenerativeModel("gemini-2.5-flash", system_instruction=SYSTEM_PROMPT_DI_CHECK)
+                    # Atualizado para o modelo gemini-3.8-flash conforme diretrizes recentes da API
+                    model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=SYSTEM_PROMPT_DI_CHECK)
                     
                     content_parts = []
                     
-                    # Adiciona as imagens de referência de forma segura para o SDK
+                    # Adiciona as imagens de referência de forma segura para o SDK (limitado a 4)
                     for img in uploaded_images[:4]:
                         content_parts.append({
                             "mime_type": img.type,
@@ -100,7 +101,7 @@ if api_key:
                         "data": uploaded_video.getvalue()
                     })
                     
-                    # Instrução final da chamada
+                    # Instrução final direcionando o motor de auditoria
                     content_parts.append(
                         "Realize a auditoria multi-ângulo completa deste vídeo confrontando-o com o conjunto de imagens oficiais enviadas, "
                         "aplicando rigor total a micro-detalhes, alças, puxadores, tampas e diretrizes do TikTok Shop."
@@ -117,4 +118,4 @@ if api_key:
             st.warning("Por favor, envie ao menos uma imagem de referência e o vídeo para iniciar a análise.")
 else:
     st.info("Insira sua chave de API do Gemini acima para habilitar o painel de auditoria.")
-                
+    
