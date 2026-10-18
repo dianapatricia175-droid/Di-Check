@@ -137,9 +137,9 @@ if api_key:
                         "Gere o resultado seguindo estritamente o formato exigido: comece diretamente com o Veredicto e o Painel de Critérios completos (com ✅ e ❌) logo no topo, seguido do relatório técnico."
                     )
                     
-                    # Chamada utilizando o modelo multimodal moderno
+                    # Chamada utilizando o modelo moderno atualizado gemini-3.8-flash
                     response = client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-3.8-flash',
                         contents=contents,
                         config=types.GenerateContentConfig(
                             system_instruction=SYSTEM_PROMPT_DI_CHECK,
@@ -157,4 +157,4 @@ if api_key:
             st.warning("⚠️ Por favor, envie ao menos uma imagem de referência e o vídeo para iniciar a análise.")
 else:
     st.info("💡 Insira sua chave de API do Gemini acima para habilitar o painel de auditoria.")
-                                
+        
