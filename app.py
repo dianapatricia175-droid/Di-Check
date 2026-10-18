@@ -1,5 +1,6 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 # Configuração da página e design moderno com CSS personalizado
 st.set_page_config(
@@ -8,7 +9,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilização CSS Moderna (Cards, Sombras, Fontes e Cores Customizadas)
+# Estilização CSS Moderna (Dark Mode SaaS)
 st.markdown("""
     <style>
     .main {
@@ -27,14 +28,6 @@ st.markdown("""
         border-radius: 12px;
         padding: 15px;
     }
-    .metric-card {
-        background-color: #1e293b;
-        border: 1px solid #334155;
-        padding: 16px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        margin-bottom: 12px;
-    }
     .stButton button {
         background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         color: white;
@@ -46,75 +39,64 @@ st.markdown("""
         width: 100%;
     }
     .stButton button:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        background: linear-gradient(135deg, #1d4ed8 100%, #1e40af 100%);
         box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Cabeçalho Principal Moderno
+# Cabeçalho Principal (Resumo básico do sistema)
 st.markdown("<h1 style='text-align: center; color: #38bdf8;'>🛡️ DI CHECK - Sistema de Auditoria Rigorosa</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 1.1rem;'>Auditoria multi-ângulo de alta precisão e blindagem contra inconsistências estruturais e de IA.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 1.1rem;'>Auditoria automática e universal para e-commerce (TikTok Shop e Shopee) focada em conformidade, marcas, falsificações, logotipos de terceiros e integridade estrutural.</p>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Campo para inserir a chave da API do Gemini em destaque
+# Campo para inserir a chave da API do Gemini
 col_key1, col_key2, col_key3 = st.columns([1, 2, 1])
 with col_key2:
     api_key = st.text_input("🔑 Insira sua Gemini API Key:", type="password", placeholder="Cole sua chave aqui...")
 
 if api_key:
-    genai.configure(api_key=api_key)
+    # Inicializa o cliente oficial moderno do Google GenAI
+    client = genai.Client(api_key=api_key)
     
-    # Prompt com Inspeção Cirúrgica e Foco em Divergência de Componentes
     SYSTEM_PROMPT_DI_CHECK = (
-        "Você é o DI CHECK, um sistema especialista em auditoria de conformidade para e-commerce "
-        "e plataformas de alta performance como TikTok Shop e Shopee. Sua responsabilidade máxima "
-        "é proteger o criador contra punições por 'Promoção de Produto Inconsistente'.\n\n"
+        "Você é o DI CHECK, o sistema especialista sênior definitivo em auditoria de conformidade, segurança de marca "
+        "e inteligência regulatória para vídeos de criadores no TikTok Shop e na Shopee.\n\n"
         
-        "Você receberá um conjunto de imagens oficiais de referência (até 4 imagens) e um vídeo de divulgação. "
-        "Sua tarefa é cruzar as características físicas estáticas das fotos com o item real manuseado no vídeo.\n\n"
+        "Sua missão é realizar uma ANÁLISE FORENSE CRUZADA EXAUSTIVA entre as imagens oficiais de referência da vitrine "
+        "e o vídeo de divulgação enviado, aplicando rigor idêntico (ou superior) ao dos robôs de moderação automatizada das plataformas.\n\n"
         
-        "### REGRAS CRÍTICAS DE AUDITORIA (TOLERÂNCIA ZERO PARA DIFERENÇAS):\n"
-        "1. **Análise de Componentes e Micro-Detalhes:** Compare obrigatoriamente alças, puxadores, tampas, bicos, fechos, proporções e acabamentos visuais entre as fotos oficiais e o vídeo.\n"
-        "2. **Detecção de Divergência Estrutural:** Se a foto oficial apresentar um tipo de componente (ex: alça rígida ou formato específico de tampa) e o vídeo mostrar outro (ex: alça flexível ou tampa diferente), o produto é estruturalmente diferente.\n"
-        "3. **Veredicto Obrigatório:** Caso identifique qualquer divergência física ou geométrica, você DEVE emitir o veredicto de **REPROVADO** e apontar explicitamente qual parte do produto divergiu das imagens de referência."
+        "### DIRETRIZES DE AUDITORIA COMPLETA E TOLERÂNCIA ZERO (TODOS OS ASPECTOS EXIGIDOS):\n"
+        "1. **Detecção de Logotipos e Marcas d'Água de Terceiros (Anti-Watermark / Vídeo Roubado):**\n"
+        "   - Inspecione minuciosamente se o vídeo exibe logotipos, marcas d'água, @s, nomes de perfis ou identidades visuais de outros criadores, lojas concorrentes ou plataformas externas. Caso o vídeo pertença a terceiros, a infração é gravíssima.\n"
+        "2. **Verificação de Marcas, Falsificações e Imitações (Anti-Counterfeit & IP Policy):**\n"
+        "   - Inspecione se há comercialização de produtos falsificados, imitações, réplicas, produtos 'inspirados em' ou cópias não autorizadas que infrinjam marcas registradas e propriedade intelectual (IP).\n"
+        "3. **Fidelidade de Categoria, Modelo e Variação:**\n"
+        "   - Valide se o item real manuseado no vídeo pertence exatamente à mesma categoria, subtipo, cor, design e especificações técnicas das fotos oficiais da vitrine (proibida troca oculta de produtos ou envio de versões inferiores).\n"
+        "4. **Inconsistências Estruturais e Micro-Detalhes:**\n"
+        "   - Confronte milimetricamente componentes físicos (alças, puxadores, tampas, bicos, acabamentos, texturas e proporções volumétricas) para detectar divergências entre a foto estática e o item real.\n"
+        "5. **Conformidade de Legibilidade e Mídia:**\n"
+        "   - Verifique se rótulos, inscrições e textos exibidos no vídeo estão nítidos, corretos e sem inversão incorreta (efeito espelho indesejado).\n"
+        "6. **Consistência Comercial, Preço e Padrão Técnico:**\n"
+        "   - Certifique-se de que a locução e o apelo promocional condizem com a oferta cadastrada, avaliando também a iluminação, nitidez e segurança do vídeo.\n\n"
+        
+        "### FORMATO OBRIGATÓRIO DA SUA RESPOSTA (SIGA EXATAMENTE ESTA ORDEM):\n"
+        "Sua resposta DEVE começar obrigatoriamente na primeira linha com o veredicto em destaque, seguido imediatamente pelo painel de critérios completo. Não escreva nenhuma introdução antes disso:\n\n"
+        "🔴 **VEREDICTO: REPROVADO** (ou 🟢 **VEREDICTO: APROVADO**)\n\n"
+        "### 📋 PAINEL DE CRITÉRIOS DA AUDITORIA:\n"
+        "- [✅ ou ❌] Autoria do Vídeo / Ausência de Logos de Terceiros\n"
+        "- [✅ ou ❌] Autenticidade de Marca e Conformidade de IP (Sem Falsificações/Imitações)\n"
+        "- [✅ ou ❌] Fidelidade de Categoria e Modelo do Produto\n"
+        "- [✅ ou ❌] Integridade Estrutural e de Componentes Físicos (Alças, Tampas, etc.)\n"
+        "- [✅ ou ❌] Legibilidade de Textos, Marcas e Rótulos (Sem Efeito Espelho)\n"
+        "- [✅ ou ❌] Consistência Comercial, Preço e Padrão Técnico do Vídeo\n\n"
+        "### 📝 RELATÓRIO TÉCNICO DETALHADO:\n"
+        "(Descreva objetivamente os motivos da aprovação ou aponte cirurgicamente cada infração de logo de terceiros, marca, falsificação ou divergência estrutural encontrada que justifique a reprovação)."
     )
 
     st.markdown("---")
     
-    # Checklist Visual Dinâmico com Ícones de Aprovado (✅) e Reprovado (❌)
-    st.markdown("### 📋 Painel de Critérios Ativos na Auditoria")
-    
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown("""
-        <div class='metric-card'>
-            <b>✅ Fidelidade Estrutural e Geométrica</b><br><span style='color: #94a3b8; font-size: 0.85rem;'>Alças, puxadores, tampas e proporções validadas.</span>
-        </div>
-        <div class='metric-card'>
-            <b>✅ Análise Multi-Ângulo Simultânea</b><br><span style='color: #94a3b8; font-size: 0.85rem;'>Cruzamento com até 4 fotos oficiais da vitrine.</span>
-        </div>
-        <div class='metric-card'>
-            <b>✅ Legibilidade de Textos e Rótulos</b><br><span style='color: #94a3b8; font-size: 0.85rem;'>Verificação contra inversão ou efeito espelho.</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with c2:
-        st.markdown("""
-        <div class='metric-card'>
-            <b>❌ Tolerância Zero a Inconsistências</b><br><span style='color: #94a3b8; font-size: 0.85rem;'>Reprovado imediato se houver divergência física.</span>
-        </div>
-        <div class='metric-card'>
-            <b>❌ Tratamento Rigoroso de Props</b><br><span style='color: #94a3b8; font-size: 0.85rem;'>Controle estrito sobre acessórios de cenário.</span>
-        </div>
-        <div class='metric-card'>
-            <b>✅ Padrão Técnico e Visual</b><br><span style='color: #94a3b8; font-size: 0.85rem;'>Checagem de foco, iluminação e artefatos de IA.</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    
-    # Seção de Upload de Arquivos Organizada em Cards Modernos
+    # Seção de Upload de Arquivos
     st.markdown("### 📁 Envio de Arquivos para Auditoria")
     col1, col2 = st.columns(2)
     with col1:
@@ -124,36 +106,46 @@ if api_key:
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Botão Centralizado de Execução
-    if st.button("🚀 Iniciar Auditoria Rigorosa de Inconsistência"):
+    # Botão de Execução
+    if st.button("🚀 Iniciar Auditoria Completa de Conformidade"):
         if uploaded_video and uploaded_images:
-            with st.spinner("🔄 Analisando imagens oficiais e cruzando quadros do vídeo... Aguarde."):
+            with st.spinner("🔄 Processando vídeo completo e imagens oficiais... Analisando logotipos, marcas, falsificações e estrutura. Aguarde."):
                 try:
-                    model = genai.GenerativeModel("gemini-3.8-flash", system_instruction=SYSTEM_PROMPT_DI_CHECK)
-                    
-                    content_parts = []
+                    contents = []
                     
                     # Adiciona as imagens oficiais de referência
                     for img in uploaded_images[:4]:
-                        content_parts.append({
-                            "mime_type": img.type,
-                            "data": img.getvalue()
-                        })
+                        contents.append(
+                            types.Part.from_bytes(
+                                data=img.getvalue(),
+                                mime_type=img.type,
+                            )
+                        )
                     
-                    # Adiciona o vídeo do criador
-                    content_parts.append({
-                        "mime_type": uploaded_video.type,
-                        "data": uploaded_video.getvalue()
-                    })
-                    
-                    # Instrução assertiva final
-                    content_parts.append(
-                        "Confronte rigorosamente o produto exibido no vídeo com as imagens oficiais da vitrine enviadas acima. "
-                        "Verifique detalhadamente se a alça, puxador, tampa ou qualquer outro componente estrutural no vídeo difere das fotos oficiais. "
-                        "Se houver qualquer divergência estrutural, declare explicitamente o veredicto de REPROVADO e detalhe qual é a inconsistência encontrada."
+                    # Adiciona o vídeo bruto para análise inteligente
+                    contents.append(
+                        types.Part.from_bytes(
+                            data=uploaded_video.getvalue(),
+                            mime_type=uploaded_video.type,
+                        )
                     )
                     
-                    response = model.generate_content(content_parts)
+                    # Instrução final imperativa
+                    contents.append(
+                        "Execute a auditoria forense completa em todo o vídeo enviado e nas imagens oficiais da vitrine. "
+                        "Verifique rigorosamente se há logotipos de terceiros, indícios de produto falsificado, imitação, réplica, uso indevido de marca ou divergência estrutural. "
+                        "Gere o resultado seguindo estritamente o formato exigido: comece diretamente com o Veredicto e o Painel de Critérios completos (com ✅ e ❌) logo no topo, seguido do relatório técnico."
+                    )
+                    
+                    # Chamada utilizando o modelo multimodal moderno
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=contents,
+                        config=types.GenerateContentConfig(
+                            system_instruction=SYSTEM_PROMPT_DI_CHECK,
+                            temperature=0.1
+                        ),
+                    )
                     
                     st.markdown("<br>", unsafe_allow_html=True)
                     st.markdown("### 📊 Resultado da Auditoria DI CHECK:")
@@ -164,5 +156,5 @@ if api_key:
         else:
             st.warning("⚠️ Por favor, envie ao menos uma imagem de referência e o vídeo para iniciar a análise.")
 else:
-    st.info("💡 Insira sua chave de API do Gemini acima para habilitar o painel moderno de auditoria.")
-    
+    st.info("💡 Insira sua chave de API do Gemini acima para habilitar o painel de auditoria.")
+                                
