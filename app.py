@@ -271,7 +271,7 @@ def auditar_lote(client, modelo, imagens_referencia, quadros, numero_lote, total
     resposta = client.models.generate_content(
         model=modelo,
         contents=conteudos,
-        config=types.GenerateContentConfig(temperature=0.0)
+        config=types.GenerateContentConfig()
     )
     texto = getattr(resposta, "text", None)
     if not texto:
@@ -316,9 +316,9 @@ with col_b:
 
 modelo = st.text_input(
     "Modelo Gemini disponível na sua conta",
-    value="gemini-2.5-flash",
+    value="gemini-3.8-flash",
     help="Confirme os modelos disponíveis na documentação/conta Google AI. "
-         "Se este modelo não estiver habilitado, informe outro identificador válido."
+         "Modelo padrão atualizado para gemini-3.8-flash conforme a mensagem de erro da sua conta. Se a API retornar outro erro, confira os modelos disponíveis no Google AI Studio."
 )
 
 st.caption(
@@ -396,7 +396,7 @@ if st.button("🚀 Iniciar Auditoria Completa de Conformidade"):
                     PROMPT_CONSOLIDACAO,
                     "\n\n".join(relatorios)
                 ],
-                config=types.GenerateContentConfig(temperature=0.0)
+                config=types.GenerateContentConfig()
             )
 
             texto_final = getattr(resposta_final, "text", None)
@@ -438,7 +438,7 @@ if st.button("🚀 Iniciar Auditoria Completa de Conformidade"):
             st.error(
                 f"Falha durante a auditoria: {e}\n\n"
                 "Confira a chave, o nome do modelo, a conexão e os limites da API. "
-                "Falha técnica não deve ser interpretada como aprovação."
+                "Falha técnica não deve ser interpretada como aprovação. O erro anterior indicava que gemini-2.5-flash não estava disponível para sua conta; este arquivo agora usa gemini-3.8-flash por padrão."
             )
         finally:
             if video_path and os.path.exists(video_path):
@@ -450,5 +450,5 @@ else:
     st.info(
         "💡 Insira sua chave Gemini, envie as imagens oficiais e o vídeo "
         "para iniciar a auditoria."
-    )
-    
+        )
+            
