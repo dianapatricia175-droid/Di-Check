@@ -99,4 +99,4 @@ if api_key:
             st.warning("Por favor, envie ao menos uma imagem de referência e o vídeo para iniciar a análise.")
 else:
     st.info("Insira sua chave de API do Gemini acima para habilitar o painel de auditoria.")
-        
+    
