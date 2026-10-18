@@ -13,7 +13,7 @@ api_key = st.text_input("Insira sua Gemini API Key:", type="password")
 if api_key:
     genai.configure(api_key=api_key)
     
-    # Prompt Completo e Unificado (Histórico + Atualização Geométrica de Hoje)
+    # Prompt Completo e Unificado (Histórico + Rigor Geométrico)
     SYSTEM_PROMPT_DI_CHECK = (
         "Você é o DI CHECK, um sistema especialista avançado de inteligência artificial, "
         "atuando como o auditor sênior de conformidade, segurança e inteligência regulatória "
@@ -72,7 +72,7 @@ if api_key:
 
     st.markdown("---")
     
-    # Upload de arquivos (Suporte a até 4 imagens e vídeo)
+    # Upload de arquivos
     col1, col2 = st.columns(2)
     with col1:
         uploaded_images = st.file_uploader("Envie as imagens oficiais da vitrine (Até 4 imagens para análise multi-ângulo):", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
@@ -81,25 +81,40 @@ if api_key:
 
     if st.button("🚀 Iniciar Auditoria Multi-Ângulo Rigorosa"):
         if uploaded_video and uploaded_images:
-            with st.spinner("Realizando análise cruzada multi-ângulo e micro-verificação geométrica..."):
-                model = genai.GenerativeModel("gemini-2.5-flash", system_instruction=SYSTEM_PROMPT_DI_CHECK)
-                
-                content_parts = []
-                
-                # Adiciona as imagens de referência (limitadas a 4)
-                for img in uploaded_images[:4]:
-                    content_parts.append({"mime_type": img.type, "data": img.getvalue()})
-                
-                # Adiciona o vídeo
-                content_parts.append({"mime_type": uploaded_video.type, "data": uploaded_video.getvalue()})
-                
-                content_parts.append("Realize a auditoria multi-ângulo completa deste vídeo confrontando-o com o conjunto de imagens oficiais enviadas, aplicando rigor total a micro-detalhes, alças, puxadores, tampas e diretrizes do TikTok Shop.")
-                
-                response = model.generate_content(content_parts)
-                
-                st.markdown("### Resultado da Auditoria DI CHECK:")
-                st.markdown(response.text)
+            with st.spinner("Processando arquivos e realizando análise cruzada multi-ângulo..."):
+                try:
+                    model = genai.GenerativeModel("gemini-2.5-flash", system_instruction=SYSTEM_PROMPT_DI_CHECK)
+                    
+                    content_parts = []
+                    
+                    # Adiciona as imagens de referência de forma segura para o SDK
+                    for img in uploaded_images[:4]:
+                        content_parts.append({
+                            "mime_type": img.type,
+                            "data": img.getvalue()
+                        })
+                    
+                    # Adiciona o vídeo de forma segura para o SDK
+                    content_parts.append({
+                        "mime_type": uploaded_video.type,
+                        "data": uploaded_video.getvalue()
+                    })
+                    
+                    # Instrução final da chamada
+                    content_parts.append(
+                        "Realize a auditoria multi-ângulo completa deste vídeo confrontando-o com o conjunto de imagens oficiais enviadas, "
+                        "aplicando rigor total a micro-detalhes, alças, puxadores, tampas e diretrizes do TikTok Shop."
+                    )
+                    
+                    response = model.generate_content(content_parts)
+                    
+                    st.markdown("### Resultado da Auditoria DI CHECK:")
+                    st.markdown(response.text)
+                    
+                except Exception as e:
+                    st.error(f"Ocorreu um erro durante a comunicação com a API do Gemini: {e}")
         else:
             st.warning("Por favor, envie ao menos uma imagem de referência e o vídeo para iniciar a análise.")
 else:
     st.info("Insira sua chave de API do Gemini acima para habilitar o painel de auditoria.")
+                
