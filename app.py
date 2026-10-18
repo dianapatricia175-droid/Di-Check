@@ -1,6 +1,9 @@
 import streamlit as st
 from google import genai
 from google.genai import types
+import time
+import tempfile
+import os
 
 # Configuração da página e design moderno com CSS personalizado
 st.set_page_config(
@@ -63,7 +66,7 @@ if api_key:
         "Você é o DI CHECK, o sistema especialista sênior definitivo em auditoria de conformidade, segurança de marca "
         "e inteligência regulatória para vídeos de criadores no TikTok Shop e na Shopee.\n\n"
         
-        "Sua missão é realizar uma ANÁLISE FORENSE CRUZADA EXAUSTIVA entre as imagens oficiais de referência da vitrine "
+        "Sua missão é realizar uma ANÁLISE FORENSE CRUZADA EXAUSTIVA segundo a segundo entre as imagens oficiais de referência da vitrine "
         "e o vídeo de divulgação enviado, aplicando rigor idêntico (ou superior) ao dos robôs de moderação automatizada das plataformas.\n\n"
         
         "### DIRETRIZES DE AUDITORIA COMPLETA E TOLERÂNCIA ZERO (TODOS OS ASPECTOS EXIGIDOS):\n"
@@ -73,8 +76,8 @@ if api_key:
         "   - Inspecione se há comercialização de produtos falsificados, imitações, réplicas, produtos 'inspirados em' ou cópias não autorizadas que infrinjam marcas registradas e propriedade intelectual (IP).\n"
         "3. **Fidelidade de Categoria, Modelo e Variação:**\n"
         "   - Valide se o item real manuseado no vídeo pertence exatamente à mesma categoria, subtipo, cor, design e especificações técnicas das fotos oficiais da vitrine (proibida troca oculta de produtos ou envio de versões inferiores).\n"
-        "4. **Inconsistências Estruturais e Micro-Detalhes:**\n"
-        "   - Confronte milimetricamente componentes físicos (alças, puxadores, tampas, bicos, acabamentos, texturas e proporções volumétricas) para detectar divergências entre a foto estática e o item real.\n"
+        "4. **Inconsistências Estruturais e Micro-Detalhes (Análise Temporal Completa):**\n"
+        "   - Confronte milimetricamente componentes físicos ao longo de todo o vídeo (alças, puxadores, tampas, bicos, acabamentos, texturas e proporções volumétricas). Preste atenção máxima a giros ou manuseios onde o produto muda de ângulo ou mostra detalhes ocultos, identificando qualquer divergência entre a foto estática e o item real.\n"
         "5. **Conformidade de Legibilidade e Mídia:**\n"
         "   - Verifique se rótulos, inscrições e textos exibidos no vídeo estão nítidos, corretos e sem inversão incorreta (efeito espelho indesejado).\n"
         "6. **Consistência Comercial, Preço e Padrão Técnico:**\n"
@@ -109,8 +112,23 @@ if api_key:
     # Botão de Execução
     if st.button("🚀 Iniciar Auditoria Completa de Conformidade"):
         if uploaded_video and uploaded_images:
-            with st.spinner("🔄 Processando vídeo completo e imagens oficiais... Analisando logotipos, marcas, falsificações e estrutura. Aguarde."):
+            with st.spinner("🔄 Processando vídeo via API de alta resolução e imagens oficiais... Analisando segundos e micro-detalhes. Aguarde."):
+                video_path = None
+                video_file_ref = None
                 try:
+                    # Salva o vídeo temporariamente para o upload oficial via Files API
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
+                        tmp_file.write(uploaded_video.getvalue())
+                        video_path = tmp_file.name
+
+                    # Upload oficial do vídeo para o servidor do Gemini (garante processamento temporal completo)
+                    video_file_ref = client.files.upload(file=video_path)
+                    
+                    # Aguarda o processamento do vídeo estar pronto na API
+                    while video_file_ref.state.name == "PROCESSING":
+                        time.sleep(2)
+                        video_file_ref = client.files.get(name=video_file_ref.name)
+
                     contents = []
                     
                     # Adiciona as imagens oficiais de referência
@@ -122,22 +140,18 @@ if api_key:
                             )
                         )
                     
-                    # Adiciona o vídeo bruto para análise inteligente
-                    contents.append(
-                        types.Part.from_bytes(
-                            data=uploaded_video.getvalue(),
-                            mime_type=uploaded_video.type,
-                        )
-                    )
+                    # Adiciona a referência oficial do vídeo processado
+                    contents.append(video_file_ref)
                     
                     # Instrução final imperativa
                     contents.append(
                         "Execute a auditoria forense completa em todo o vídeo enviado e nas imagens oficiais da vitrine. "
-                        "Verifique rigorosamente se há logotipos de terceiros, indícios de produto falsificado, imitação, réplica, uso indevido de marca ou divergência estrutural. "
+                        "Analise os giros e movimentos do produto no vídeo segundo a segundo para verificar se a alça, tampa ou qualquer componente difere das fotos da vitrine, "
+                        "além de verificar logotipos de terceiros e falsificações. "
                         "Gere o resultado seguindo estritamente o formato exigido: comece diretamente com o Veredicto e o Painel de Critérios completos (com ✅ e ❌) logo no topo, seguido do relatório técnico."
                     )
                     
-                    # Chamada utilizando o modelo moderno atualizado gemini-3.8-flash
+                    # Chamada utilizando o modelo moderno gemini-3.8-flash com suporte a vídeo completo
                     response = client.models.generate_content(
                         model='gemini-3.8-flash',
                         contents=contents,
@@ -153,8 +167,18 @@ if api_key:
                     
                 except Exception as e:
                     st.error(f"Ocorreu um erro durante a comunicação com a API do Gemini: {e}")
+                finally:
+                    # Limpeza do arquivo temporário local
+                    if video_path and os.path.exists(video_path):
+                        os.unlink(video_path)
+                    # Limpeza opcional do arquivo remoto no servidor se necessário
+                    if video_file_ref:
+                        try:
+                            client.files.delete(name=video_file_ref.name)
+                        except:
+                            pass
         else:
             st.warning("⚠️ Por favor, envie ao menos uma imagem de referência e o vídeo para iniciar a análise.")
 else:
     st.info("💡 Insira sua chave de API do Gemini acima para habilitar o painel de auditoria.")
-        
+    
