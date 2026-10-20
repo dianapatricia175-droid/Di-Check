@@ -77,12 +77,23 @@ funcionamento, autenticidade, material não identificável visualmente,
 conteúdo fechado dentro da embalagem ou outras propriedades invisíveis
 NÃO é motivo para inconclusão e NÃO deve impedir a avaliação visual.
 
-1. FIDELIDADE EXTERNA DO PRODUTO
-- Compare apenas os elementos visíveis no vídeo e nas referências:
-  categoria/modelo aparente, formato, proporções, cor visível, acabamento,
-  textura aparente, embalagem, rótulo, textos legíveis, marca/logotipo,
-  tampa, alça, bico, botões, costuras, fechos, conectores, base, peças e
-  acessórios que realmente apareçam.
+1. FIDELIDADE EXTERNA DO PRODUTO — CHECKLIST OBRIGATÓRIO
+- Faça uma comparação direta, elemento por elemento, entre as referências e
+  o vídeo. NÃO aprove apenas porque o produto em geral parece semelhante.
+- CHECKLIST PRIORITÁRIO: TAMPA e ALÇA. Para cada uma, verifique
+  explicitamente: presença/ausência, formato, cor aparente, posição,
+  proporção, desenho, encaixe/pontos de fixação e se é uma peça separada.
+  Se a tampa ou a alça aparecer diferente da referência em qualquer quadro
+  suficientemente claro, registre a diferença com timestamp e marque
+  REPROVADO, desde que seja uma divergência real e não efeito de ângulo,
+  sombra, reflexo ou oclusão.
+- Se tampa/alça não estiverem visíveis em um quadro, procure em TODOS os
+  demais quadros fornecidos antes de decidir. Não conclua que correspondem
+  só porque não foi possível vê-las.
+- Compare também os demais elementos externos: categoria/modelo aparente,
+  formato, proporções, cor visível, acabamento, embalagem, rótulo, textos
+  legíveis, marca/logotipo, bico, botões, costuras, fechos, conectores,
+  base, peças e acessórios que realmente apareçam.
 - Observe o produto de acordo com o que a referência permite comparar.
 - Não exija que o vídeo mostre todos os lados ou cada detalhe minúsculo.
   Avalie as evidências disponíveis e não transforme ausência de um ângulo
@@ -99,8 +110,15 @@ NÃO é motivo para inconclusão e NÃO deve impedir a avaliação visual.
   sombra, ângulo ou compressão do vídeo.
 
 2. QUANDO APROVAR OU REPROVAR
-- APROVADO: o produto corresponde visualmente às referências nos aspectos
-  externos que podem ser comparados e não há divergência relevante visível.
+- Antes de aprovar, preencha internamente uma linha para cada item: corpo,
+  tampa, alça, rótulo/logotipo, cor e acessórios visíveis. Para cada item,
+  indique IGUAL, DIFERENTE ou NÃO VISÍVEL, com evidência dos quadros.
+- APROVADO: só depois da checagem explícita do checklist, quando os itens
+  externos comparáveis correspondem às referências e não há divergência
+  relevante visível. Não pule tampa ou alça.
+- Se uma divergência relevante de tampa ou alça estiver confirmada em pelo
+  menos um quadro claro, REPROVADO prevalece mesmo que os outros itens
+  estejam corretos.
   Se algum detalhe secundário não estiver visível, isso não impede aprovação.
 - REPROVADO: há ao menos uma divergência externa clara, observável e
   relevante entre o produto do vídeo e as referências, como formato/modelo
@@ -162,7 +180,8 @@ Você é o auditor final do DI CHECK. Consolide todos os relatórios dos
 lotes sem descartar evidências individuais. O objetivo é decidir se o
 produto visível no vídeo corresponde externamente às imagens oficiais.
 
-Escolha EXATAMENTE UM destes veredictos:
+Escolha EXATAMENTE UM destes veredictos, somente depois de comparar cada
+componente externo visível das referências com os quadros do vídeo:
 🟢 APROVADO — o produto corresponde visualmente às referências nos
 aspectos externos observáveis e não há divergência relevante confirmada.
 🔴 REPROVADO — há uma divergência externa clara, visível, relevante e
@@ -172,6 +191,17 @@ ou enquadramento impedirem identificar/comparar o produto ou seus aspectos
 externos essenciais. Explique precisamente o que não pôde ser visto.
 
 REGRAS OBRIGATÓRIAS:
+- CHECKLIST ANTES DE APROVAR: comparar explicitamente corpo/formato, tampa,
+  alça, cor, rótulo/logotipo e acessórios visíveis. Não omitir itens.
+- TAMPA E ALÇA SÃO ITENS DE ALTA PRIORIDADE: verificar presença/ausência,
+  formato, cor aparente, posição, proporção, desenho e fixação. Consulte
+  todos os relatórios de quadros para localizar a melhor vista de cada peça.
+  Uma diferença real, relevante e claramente visível em qualquer quadro
+  deve resultar em REPROVADO, com timestamp e descrição específica.
+  Não assuma que uma peça corresponde apenas porque o restante corresponde.
+- Se um item não estiver visível, marque NÃO VISÍVEL; isso não prova que ele
+  está correto. Antes de aprovar, verifique se há outros quadros que mostrem
+  esse item. Não invente diferenças por ângulo, sombra, reflexo ou oclusão.
 - Não use INCONCLUSIVO porque o interior do produto não aparece, porque
   composição/material/capacidade/desempenho não podem ser deduzidos, porque
   faltam detalhes internos ou porque um ângulo secundário não foi mostrado.
@@ -195,8 +225,9 @@ REGRAS OBRIGATÓRIAS:
 Formato:
 1. VEREDICTO: APROVADO / REPROVADO / INCONCLUSIVO
 2. RESUMO EXECUTIVO
-3. PAINEL DE CRITÉRIOS EXTERNOS VISÍVEIS: CONFORME / DIVERGÊNCIA
-   CONFIRMADA / SUSPEITA / NÃO VISÍVEL (não penaliza por si só)
+3. CHECKLIST EXPLÍCITO: CORPO / TAMPA / ALÇA / COR / RÓTULO-LOGOTIPO /
+   ACESSÓRIOS — cada item como CONFORME / DIVERGÊNCIA CONFIRMADA / SUSPEITA /
+   NÃO VISÍVEL, com timestamp ou explicação
 4. DIVERGÊNCIAS CONFIRMADAS COM TIMESTAMP E EVIDÊNCIA
 5. ELEMENTOS GRÁFICOS TEMPORÁRIOS
 6. LIMITAÇÕES VISUAIS REAIS (se houver)
@@ -266,6 +297,10 @@ def auditar_lote(client, modelo, imagens_referencia, quadros, numero_lote, total
         + f"\n\nAnalise o LOTE {numero_lote} DE {total_lotes}. "
         + "As imagens oficiais são apresentadas primeiro. Em seguida, "
         + "cada quadro do vídeo vem com timestamp e índice. "
+        + "Faça comparação direta e não genérica. Priorize e verifique "
+        + "explicitamente TAMPA e ALÇA: formato, cor, posição, presença, "
+        + "encaixe e desenho. Se houver divergência externa clara em qualquer "
+        + "quadro, registre-a com timestamp; não aprove sem checklist. "
         + "Compare cada quadro com as referências e siga o formato definido."
     )
 
@@ -474,4 +509,3 @@ else:
         "💡 Insira sua chave Gemini, envie as imagens oficiais e o vídeo "
         "para iniciar a auditoria."
     )
-        
