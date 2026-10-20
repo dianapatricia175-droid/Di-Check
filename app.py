@@ -459,7 +459,17 @@ if st.button("🚀 Iniciar Auditoria Completa de Conformidade"):
                 relatorio = auditar_lote(
                     client=client,
                     modelo=modelo,
-                    [PROMPT_CONSOLIDACAO, "\n\n".join(relatorios)]
+                    imagens_referencia=uploaded_images,
+                    quadros=lote,
+                    numero_lote=numero,
+                    total_lotes=len(lotes)
+                )
+                relatorios.append(f"RELATÓRIO DO LOTE {numero}\n{relatorio}")
+                progresso.progress(numero / len(lotes))
+
+            status.write("Consolidando as evidências...")
+            resposta_final = gerar_conteudo_com_retry(
+                client, modelo, [PROMPT_CONSOLIDACAO, "\n\n".join(relatorios)]
             )
 
             texto_final = getattr(resposta_final, "text", None)
@@ -513,6 +523,6 @@ else:
     st.info(
         "💡 Insira sua chave Gemini, envie as imagens oficiais e o vídeo "
         "para iniciar a auditoria."
-)
+                )
     
              
