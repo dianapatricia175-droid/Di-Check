@@ -459,4 +459,60 @@ if st.button("🚀 Iniciar Auditoria Completa de Conformidade"):
                 relatorio = auditar_lote(
                     client=client,
                     modelo=modelo,
+                    [PROMPT_CONSOLIDACAO, "\n\n".join(relatorios)]
+            )
+
+            texto_final = getattr(resposta_final, "text", None)
+            st.markdown("## 📊 Resultado da auditoria DI CHECK")
+            if texto_final:
+                st.markdown(texto_final)
+            else:
+                st.error(
+                    "A consolidação não retornou um relatório válido. "
+                    "Não considere o produto aprovado; revise os relatórios dos lotes."
+                )
+
+            with st.expander("Ver relatórios completos por lote"):
+                for i, relatorio in enumerate(relatorios, start=1):
+                    st.markdown(f"#### Lote {i}")
+                    st.text(relatorio)
+
+            # Disponibiliza os relatórios para guardar e revisar.
+            texto_exportacao = (
+                "DI CHECK — RELATÓRIO DE AUDITORIA\n\n"
+                f"Duração: {duracao:.2f} s\n"
+                f"FPS original: {fps_original:.2f}\n"
+                f"Quadros originais: {total_original}\n"
+                f"Quadros amostrados: {len(quadros)}\n"
+                f"Frequência de amostragem: {amostragem} FPS\n\n"
+                "VEREDICTO CONSOLIDADO\n"
+                + (texto_final or "Não gerado")
+                + "\n\nRELATÓRIOS POR LOTE\n\n"
+                + "\n\n".join(relatorios)
+            )
+            st.download_button(
+                "⬇️ Baixar relatório completo (.txt)",
+                data=texto_exportacao,
+                file_name="relatorio_di_check.txt",
+                mime="text/plain"
+            )
+
+        except Exception as e:
+            st.error(
+                f"Falha durante a auditoria: {e}\n\n"
+                "Confira a chave, o nome do modelo, a conexão e os limites da API. "
+                "Falha técnica não deve ser interpretada como aprovação. O erro anterior indicava que gemini-2.5-flash não estava disponível para sua conta; este arquivo agora usa gemini-3.8-flash por padrão."
+            )
+        finally:
+            if video_path and os.path.exists(video_path):
+                try:
+                    os.unlink(video_path)
+                except OSError:
+                    pass
+else:
+    st.info(
+        "💡 Insira sua chave Gemini, envie as imagens oficiais e o vídeo "
+        "para iniciar a auditoria."
+)
+    
              
